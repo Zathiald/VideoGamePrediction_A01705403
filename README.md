@@ -20,7 +20,9 @@ Para este modelo se tienen dos opciones de datasets principales que contienen lo
 
 ## 📂 Datasets Utilizados
 
-| Dataset | Description |
-| VideoGames Sales | Este dataset creado por Eugenio M |
-| [🎮 VideoGames Sales](https://www.kaggle.com/datasets/migeruj/videogames-predictive-model) | Dataset by Eugenio M. containing video game sales data. |
-| [📊 Video Game Sales](https://www.kaggle.com/datasets/siddharth0935/video-game-sales?select=vgchartz-2024.csv) | Updated 2024 dataset by Siddharth Vora with VGChartz sales data. |
+## 📂 Datasets Used
+
+| Dataset | Descripción | Registros | Link |
+|---|---|---|---|
+| 🎮 **VideoGames Sales** | Dataset creado por **Eugenio M.** que contiene información de ventas de videojuegos, incluyendo los parámetros y salidas utilizados en esta documentación. | 7,113 datos | [Ver Dataset](https://www.kaggle.com/datasets/migeruj/videogames-predictive-model) |
+| 📊 **Video Game Sales** | Dataset creado por **Siddharth Vora** con información detallada de ventas de videojuegos y además imágenes del empaque físico de cada juego. | 39,798 datos | [Ver Dataset](https://www.kaggle.com/datasets/siddharth0935/video-game-sales?select=vgchartz-2024.csv) |
