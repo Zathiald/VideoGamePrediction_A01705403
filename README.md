@@ -43,6 +43,8 @@ Finalmente se aplicó un escalamiento a las variables objetivo con el fin de nor
 - Global_Sales
 - Critic_Score_Class
 
+El resto de las columnas no fueron escaladas ya que estás nos serviran de parámetros de entrada a la hora de hacer la predicción de datos.
+
 <img width="980" height="452" alt="image" src="https://github.com/user-attachments/assets/99e437a3-fa8f-464e-9b45-cceffc245acd" />
 
 ### Antes del Escalamiento
