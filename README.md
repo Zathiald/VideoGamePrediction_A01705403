@@ -151,13 +151,15 @@ Estas métricas se aplican a:
 Una vez entrenado el modelo tanto con train y test, analizaremos cuáles fueron los resultados que logramos obtener para todas las variables.
 
 ### TRAIN
+
+#### Predicciones Generales
 Primero tomemos un vistazo a los valores que esta prediciendo nuestro modelo, podemos notar como en la mayoría de los casos de ventas, los valores predecidos están por encima del valor real, algo que se debe tomar en cuenta para cuando realicemos ajustes. Por otra parte los valores de clasificación en la mayoría de casos parece ser haber predicho correctamente.
 
 <img width="1630" height="696" alt="image" src="https://github.com/user-attachments/assets/a1a8f9ad-a445-4eaf-b578-5ed3f5276c46" />
 
 Ahora vamos a ir variable por variable para analizar como es el rendimiento de cada una:
 
-NA_Sales:
+#### NA_Sales:
 <img width="320" height="264" alt="image" src="https://github.com/user-attachments/assets/18268100-d371-4268-aa99-f791b8e5d066" />
 
 - MAE: 0.2285
@@ -167,7 +169,7 @@ NA_Sales:
 
 El modelo obtuvo un desempeño moderado en la predicción de ventas en Norteamérica. El valor de `R² Score = 0.5002` indica que el modelo logra explicar aproximadamente el 50% de la variabilidad de los datos. Además, el `MAE = 0.2285` muestra que el error promedio de predicción es relativamente bajo, aunque todavía existen diferencias considerables entre algunos valores reales y predichos.
 
-EU_Sales:
+#### EU_Sales:
 <img width="320" height="248" alt="image" src="https://github.com/user-attachments/assets/95b11654-544f-41c4-a804-16d953dc39ac" />
 
 - MAE: 0.1562
@@ -177,7 +179,7 @@ EU_Sales:
 
 Para las ventas en Europa, el modelo presentó un desempeño aceptable con un `R² Score = 0.4847`, indicando que cerca del 48% de la variabilidad fue explicada correctamente. El `RMSE = 0.5077` refleja que el modelo mantiene errores moderados en las predicciones, mostrando una capacidad razonable para estimar las ventas europeas.
 
-JP_Sales:
+#### JP_Sales:
 <img width="317" height="250" alt="image" src="https://github.com/user-attachments/assets/e4102ca8-81e1-4db7-bdaa-4a267c5cee94" />
 
 - MAE: 0.0468
@@ -187,7 +189,7 @@ JP_Sales:
 
 La predicción de ventas en Japón mostró uno de los mejores desempeños del modelo. El `MAE = 0.0468` y el `RMSE = 0.2060` indican errores muy bajos en comparación con las demás variables. Además, el `R² Score = 0.5175` demuestra que el modelo logra explicar más del 51% de la variabilidad de los datos, pero estos valores no podrían ser del todo representativos, ya que en muchos de los datos de Japón el valor es 0, algo que afecta a las predicciones por tanta repetición.
 
-Other_Sales:
+#### Other_Sales:
 <img width="346" height="252" alt="image" src="https://github.com/user-attachments/assets/69eb4591-65fa-47b5-a39a-d21b558c94c6" />
 
 - MAE: 0.0546
@@ -197,7 +199,7 @@ Other_Sales:
 
 En las ventas de otras regiones, el modelo obtuvo resultados similares a los de Europa. El `MAE = 0.0546` muestra un error promedio relativamente pequeño, mientras que el `R² Score = 0.4847` indica un desempeño moderado en la capacidad predictiva del modelo.
 
-Global_Sales:
+#### Global_Sales:
 <img width="356" height="253" alt="image" src="https://github.com/user-attachments/assets/49727fc7-3f8f-4a4a-b413-0e6f77e5e426" />
 
 - MAE: 0.4509
@@ -207,7 +209,7 @@ Global_Sales:
 
 La predicción de ventas globales presentó errores más altos en comparación con las demás variables. Aunque el `R² Score = 0.5042` indica que el modelo explica aproximadamente el 50% de la variabilidad, el `RMSE = 1.4264` evidencia diferencias más grandes entre las ventas reales y las predicciones realizadas.
 
-Critic_Score_Class:
+#### Critic_Score_Class:
 <img width="414" height="256" alt="image" src="https://github.com/user-attachments/assets/efd7caea-95f5-4e53-b154-77e0954302f9" />
 
 - Accuracy: 0.5486
@@ -216,6 +218,8 @@ Critic_Score_Class:
 - F1 Score: 0.5335
 
 Para la clasificación de críticas, el modelo alcanzó un `Accuracy = 0.5486`, lo que significa que aproximadamente el 55% de las clasificaciones fueron correctas. La `Precision = 0.6948` indica que las predicciones positivas fueron relativamente confiables, mientras que el `F1 Score = 0.5335` refleja un desempeño moderado en el equilibrio entre precisión y recuperación.
+
+#### Matriz de Confusión 
 
 Así mismo tomamos un vistazo a nuestra matriz de confusión de nuestro modelo al trabajar con train, esta es una tabla que desglosa el número de instancias reales de una clase específica frente al número de instancias previstas para esa clase.
 
@@ -227,4 +231,89 @@ En general, el modelo presenta un desempeño moderado, logrando identificar corr
 
 
 ### TEST
+
+#### Predicciones Generales
+Ahora tomemos un vistazo a los valores que esta prediciendo nuestro modelo una vez que le damos el dataset de test, podemos notar que en los datos numéricos hay un mucho mayor número de datos que predicen por abajo del valor real y además hay muchos más casos en donde la clasificación falla.
+
+<img width="1731" height="698" alt="image" src="https://github.com/user-attachments/assets/66ab7172-a210-4e24-b401-a1b02ad8d75d" />
+
+
+Ahora vamos a ir variable por variable para analizar como es el rendimiento de cada una:
+
+#### NA_Sales:
+<img width="329" height="255" alt="image" src="https://github.com/user-attachments/assets/73b54778-011e-48f6-8ac5-547254c2ab85" />
+
+- MAE: 0.3246
+- MSE: 0.6393
+- RMSE: 0.7995
+- R² Score: 0.0712
+
+En las ventas de Norteamérica, el modelo presentó una disminución importante en el desempeño respecto a los resultados anteriores. El `R² Score = 0.0712` indica que el modelo apenas logra explicar una pequeña parte de la variabilidad de los datos. Además, el incremento en `MAE` y `RMSE` muestra que las predicciones tienen un error considerablemente mayor en comparación con el entrenamiento.
+
+#### EU_Sales:
+<img width="327" height="258" alt="image" src="https://github.com/user-attachments/assets/1c19210d-7055-4f2f-9079-8c98021e7203" />
+
+- MAE: 0.2372
+- MSE: 0.3247
+- RMSE: 0.5698
+- R² Score: -0.0809
+
+Para las ventas en Europa, el desempeño empeoró notablemente en comparación con los resultados anteriores. El `R² Score = -0.0809` indica que el modelo no logró generalizar correctamente sobre los datos de prueba. Aunque el `RMSE = 0.5698` sigue siendo moderado, las predicciones presentan más diferencias respecto a los valores reales.
+
+
+#### JP_Sales:
+<img width="322" height="251" alt="image" src="https://github.com/user-attachments/assets/1d27d69f-f636-47b9-b1d5-9ec25ea5f38e" />
+
+- MAE: 0.0629
+- MSE: 0.0452
+- RMSE: 0.2127
+- R² Score: 0.0958
+
+La variable `JP_Sales` continúa siendo una de las mejores predicciones del modelo. Aunque el `R² Score = 0.0958` es menor al obtenido anteriormente, los errores `MAE` y `RMSE` permanecen relativamente bajos, indicando que el modelo mantiene cierta estabilidad en las ventas de Japón, lo cual aún no es representativo por la repetición del 0 en muchas de las instancias.
+
+
+#### Other_Sales:
+<img width="351" height="260" alt="image" src="https://github.com/user-attachments/assets/66eedafd-0afc-4651-be12-4c9e71a540a7" />
+
+- MAE: 0.0764
+- MSE: 0.0408
+- RMSE: 0.2019
+- R² Score: -0.0583
+
+En las ventas de otras regiones, el modelo mostró un rendimiento bajo durante la evaluación. El `R² Score = -0.0583` evidencia que el modelo no logra explicar correctamente la variabilidad de los datos de prueba. Sin embargo, los errores absolutos siguen siendo relativamente pequeños debido a que los valores de esta variable suelen ser bajos.
+
+#### Global_Sales:
+<img width="361" height="265" alt="image" src="https://github.com/user-attachments/assets/86bae307-99c8-43fd-b139-adaad29a6f76" />
+
+- MAE: 0.6505
+- MSE: 2.3818
+- RMSE: 1.5433
+- R² Score: -0.0189
+
+La predicción de ventas globales presentó nuevamente los errores más altos entre todas las variables. El `RMSE = 1.5433` y el `MAE = 0.6505` muestran diferencias considerables entre valores reales y predicciones. Además, el `R² Score = -0.0189` indica que el modelo tiene dificultades para generalizar correctamente las ventas globales en datos no vistos.
+
+#### Critic_Score_Class:
+<img width="420" height="259" alt="image" src="https://github.com/user-attachments/assets/eaad40d9-d022-4fcb-b580-49941024dac0" />
+
+- Accuracy: 0.3443
+- Precision: 0.3540
+- Recall: 0.3443
+- F1 Score: 0.2965
+
+La clasificación de críticas mostró una disminución importante respecto al entrenamiento. El `Accuracy = 0.3443` indica que el modelo solo logró clasificar correctamente aproximadamente el 34% de los casos. De igual manera, `Precision`, `Recall` y `F1 Score` disminuyeron considerablemente, lo que sugiere que el modelo presenta problemas de generalización y posibles indicios de sobreajuste.
+
+
+#### Matriz de Confusión 
+
+Y revisaremos nuevamente que tanto cambio la matriz de confusión para revisar el desempeño del dataset de test.
+
+<img width="792" height="730" alt="image" src="https://github.com/user-attachments/assets/2bbf0f84-ee4c-4627-8c98-23b61f0a7306" />
+
+La matriz de confusión del conjunto de prueba muestra que el modelo tuvo dificultades para clasificar correctamente las categorías de `Critic_Score_Class` en datos no vistos. Aunque existen algunas predicciones correctas en la diagonal principal, también se observan numerosas confusiones entre las clases `1` y `2`, así como entre las clases `0` y `1`. Esto indica que el modelo no logra diferenciar claramente algunas categorías de crítica. En comparación con la matriz de entrenamiento, el desempeño disminuyó considerablemente.
+
+#### Conclusiones Version #1
+
+En general, el modelo presentó un desempeño moderado en la predicción de las variables de ventas y de la clasificación `Critic_Score_Class`, durante el entrenamiento, el modelo logró obtener métricas relativamente buenas, especialmente en algunas variables como `JP_Sales`, pero esto podria ser debido a la repeticion del 0 en JP_Sales.
+
+Sin embargo, al evaluar el modelo con datos de prueba, las métricas disminuyeron considerablemente, mostrando problemas de generalización. Esto sugiere la presencia de **overfitting**, ya que el modelo se adaptó demasiado a los datos de entrenamiento y perdió precisión al trabajar con datos no vistos. A pesar de ello, el modelo logró identificar ciertas tendencias relevantes y sirve como una base para los cambios y ajustes próximos que se van a realizar.
 
