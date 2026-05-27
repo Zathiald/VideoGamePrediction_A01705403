@@ -103,7 +103,8 @@ Pero para evaluar el rendimiento del modelo de Machine Learning, se deben conoce
 
 ---
 
-# Métricas de Regresión
+### Métricas de Regresión
+Estas métricas fueron escogidas en base a los papeles en donde indican explicitamente cómo utilizan MAE para analizar sus resultados de regresión, pero además utilizamos el resto de las métricas como colchones que nos ayudan a medir la escala de error.
 
 Estas métricas se aplican a las variables:
 
@@ -122,7 +123,8 @@ Estas métricas se aplican a las variables:
 
 ---
 
-# Métricas de Clasificación
+### Métricas de Clasificación
+Estas métricas fueron escogidas en base a papeles de trabajos de clasificación como lo son **GPT Sniffer** [Ver Paper](https://www.sciencedirect.com/science/article/pii/S0164121224001043?via%3Dihub), un research de un modelo encargado de clasificar fragmentos de código cómo entre hechos por ChatGPT o humanos, un gran punto de referencia para nuestras métricas de clasificación a utilizar.
 
 Estas métricas se aplican a:
 
@@ -137,7 +139,7 @@ Estas métricas se aplican a:
 
 ---
 
-# Métrica Interna del Random Forest
+### Métrica Interna del Random Forest
 
 | Métrica | Significado | Cómo Interpretarla |
 |---|---|---|
@@ -148,15 +150,81 @@ Estas métricas se aplican a:
 ## Resultados de la Versión #1 
 Una vez entrenado el modelo tanto con train y test, analizaremos cuáles fueron los resultados que logramos obtener para todas las variables.
 
-# TRAIN
-Prime
+### TRAIN
+Primero tomemos un vistazo a los valores que esta prediciendo nuestro modelo, podemos notar como en la mayoría de los casos de ventas, los valores predecidos están por encima del valor real, algo que se debe tomar en cuenta para cuando realicemos ajustes. Por otra parte los valores de clasificación en la mayoría de casos parece ser haber predicho correctamente.
 
 <img width="1630" height="696" alt="image" src="https://github.com/user-attachments/assets/a1a8f9ad-a445-4eaf-b578-5ed3f5276c46" />
 
+Ahora vamos a ir variable por variable para analizar como es el rendimiento de cada una:
+
+NA_Sales:
+<img width="320" height="264" alt="image" src="https://github.com/user-attachments/assets/18268100-d371-4268-aa99-f791b8e5d066" />
+
+- MAE: 0.2285
+- MSE: 0.4825
+- RMSE: 0.6947
+- R² Score: 0.5002
+
+El modelo obtuvo un desempeño moderado en la predicción de ventas en Norteamérica. El valor de `R² Score = 0.5002` indica que el modelo logra explicar aproximadamente el 50% de la variabilidad de los datos. Además, el `MAE = 0.2285` muestra que el error promedio de predicción es relativamente bajo, aunque todavía existen diferencias considerables entre algunos valores reales y predichos.
+
+EU_Sales:
+<img width="320" height="248" alt="image" src="https://github.com/user-attachments/assets/95b11654-544f-41c4-a804-16d953dc39ac" />
+
+- MAE: 0.1562
+- MSE: 0.2578
+- RMSE: 0.5077
+- R² Score: 0.4847
+
+Para las ventas en Europa, el modelo presentó un desempeño aceptable con un `R² Score = 0.4847`, indicando que cerca del 48% de la variabilidad fue explicada correctamente. El `RMSE = 0.5077` refleja que el modelo mantiene errores moderados en las predicciones, mostrando una capacidad razonable para estimar las ventas europeas.
+
+JP_Sales:
+<img width="317" height="250" alt="image" src="https://github.com/user-attachments/assets/e4102ca8-81e1-4db7-bdaa-4a267c5cee94" />
+
+- MAE: 0.0468
+- MSE: 0.0424
+- RMSE: 0.2060
+- R² Score: 0.5175
+
+La predicción de ventas en Japón mostró uno de los mejores desempeños del modelo. El `MAE = 0.0468` y el `RMSE = 0.2060` indican errores muy bajos en comparación con las demás variables. Además, el `R² Score = 0.5175` demuestra que el modelo logra explicar más del 51% de la variabilidad de los datos, pero estos valores no podrían ser del todo representativos, ya que en muchos de los datos de Japón el valor es 0, algo que afecta a las predicciones por tanta repetición.
+
+Other_Sales:
+<img width="346" height="252" alt="image" src="https://github.com/user-attachments/assets/69eb4591-65fa-47b5-a39a-d21b558c94c6" />
+
+- MAE: 0.0546
+- MSE: 0.0491
+- RMSE: 0.5077
+- R² Score: 0.4847
+
+En las ventas de otras regiones, el modelo obtuvo resultados similares a los de Europa. El `MAE = 0.0546` muestra un error promedio relativamente pequeño, mientras que el `R² Score = 0.4847` indica un desempeño moderado en la capacidad predictiva del modelo.
+
+Global_Sales:
+<img width="356" height="253" alt="image" src="https://github.com/user-attachments/assets/49727fc7-3f8f-4a4a-b413-0e6f77e5e426" />
+
+- MAE: 0.4509
+- MSE: 2.0345
+- RMSE: 1.4264
+- R² Score: 0.5042
+
+La predicción de ventas globales presentó errores más altos en comparación con las demás variables. Aunque el `R² Score = 0.5042` indica que el modelo explica aproximadamente el 50% de la variabilidad, el `RMSE = 1.4264` evidencia diferencias más grandes entre las ventas reales y las predicciones realizadas.
+
+Critic_Score_Class:
+<img width="414" height="256" alt="image" src="https://github.com/user-attachments/assets/efd7caea-95f5-4e53-b154-77e0954302f9" />
+
+- Accuracy: 0.5486
+- Precision: 0.6948
+- Recall: 0.5486
+- F1 Score: 0.5335
+
+Para la clasificación de críticas, el modelo alcanzó un `Accuracy = 0.5486`, lo que significa que aproximadamente el 55% de las clasificaciones fueron correctas. La `Precision = 0.6948` indica que las predicciones positivas fueron relativamente confiables, mientras que el `F1 Score = 0.5335` refleja un desempeño moderado en el equilibrio entre precisión y recuperación.
+
+Así mismo tomamos un vistazo a nuestra matriz de confusión de nuestro modelo al trabajar con train, esta es una tabla que desglosa el número de instancias reales de una clase específica frente al número de instancias previstas para esa clase.
+
+<img width="859" height="778" alt="image" src="https://github.com/user-attachments/assets/c1766785-a438-4949-bc4a-5df4d345b0a2" />
+
+Podemos ver que la confusión que muestra el desempeño del modelo al clasificar la variable `Critic_Score_Class`, en ella se comparan los valores reales contra las predicciones realizadas por el modelo, permitiendo identificar cuántas clasificaciones fueron correctas y cuántas fueron incorrectas. Los valores ubicados en la diagonal principal representan las predicciones acertadas, mientras que los valores fuera de la diagonal indican confusiones entre clases. 
+
+En general, el modelo presenta un desempeño moderado, logrando identificar correctamente una cantidad importante de ejemplos, aunque todavía existen errores al diferenciar categorías de crítica similares.
 
 
-
-# TEST
-
-
+### TEST
 
