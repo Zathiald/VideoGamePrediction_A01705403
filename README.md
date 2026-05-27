@@ -97,5 +97,66 @@ Para esta primera versión del modelo seleccionaremos los siguientes parámetros
 
 Ahora con nuestro modelo implementado y nuestro dataset limpio, es momento de entrenarlo y obtener resultados.
 
+## Métricas Utilizadas en el Modelo
+
+Pero para evaluar el rendimiento del modelo de Machine Learning, se deben conocer qué métricas, tanto de regresión como de clasificación, debemos utilizar, esto debido a que el modelo predice variables numéricas de ventas y una variable categórica correspondiente a la clasificación de críticas.
+
+---
+
+# Métricas de Regresión
+
+Estas métricas se aplican a las variables:
+
+- `NA_Sales`
+- `EU_Sales`
+- `JP_Sales`
+- `Other_Sales`
+- `Global_Sales`
+
+| Métrica | Significado | Cómo Interpretarla |
+|---|---|---|
+| `MAE` (Mean Absolute Error) | Calcula el promedio del error absoluto entre los valores reales y las predicciones. | Mientras más cercano a `0`, mejor precisión tiene el modelo. |
+| `MSE` (Mean Squared Error) | Calcula el promedio de los errores elevados al cuadrado. Penaliza más los errores grandes. | Valores pequeños indican mejores predicciones. |
+| `RMSE` (Root Mean Squared Error) | Es la raíz cuadrada del MSE. Permite interpretar el error en la misma escala de los datos originales. | Mientras menor sea, mejor desempeño tiene el modelo. |
+| `R² Score` | Mide qué tan bien el modelo explica la variabilidad de los datos. | Valores cercanos a `1` indican un modelo muy preciso. |
+
+---
+
+# Métricas de Clasificación
+
+Estas métricas se aplican a:
+
+- `Critic_Score_Class`
+
+| Métrica | Significado | Cómo Interpretarla |
+|---|---|---|
+| `Accuracy` | Mide el porcentaje total de predicciones correctas realizadas por el modelo. | Valores cercanos a `1` representan mayor exactitud. |
+| `Precision` | Mide cuántas predicciones positivas realizadas por el modelo fueron correctas. | Un valor alto indica pocas falsas predicciones positivas. |
+| `Recall` | Mide cuántos casos positivos reales fueron correctamente identificados. | Un valor alto indica que el modelo detecta correctamente la mayoría de los casos reales. |
+| `F1 Score` | Combina Precision y Recall en una sola métrica balanceada. | Valores cercanos a `1` representan mejor equilibrio entre precisión y recuperación. |
+
+---
+
+# Métrica Interna del Random Forest
+
+| Métrica | Significado | Cómo Interpretarla |
+|---|---|---|
+| `OOB Score` (Out Of Bag Score) | Métrica interna del algoritmo Random Forest que evalúa el rendimiento utilizando muestras no vistas durante el entrenamiento. | Valores cercanos a `1` indican que el modelo generaliza correctamente y reduce el riesgo de sobreajuste. |
+
+---
+
+## Resultados de la Versión #1 
+Una vez entrenado el modelo tanto con train y test, analizaremos cuáles fueron los resultados que logramos obtener para todas las variables.
+
+# TRAIN
+Prime
+
+<img width="1630" height="696" alt="image" src="https://github.com/user-attachments/assets/a1a8f9ad-a445-4eaf-b578-5ed3f5276c46" />
+
+
+
+
+# TEST
+
 
 
