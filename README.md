@@ -76,5 +76,26 @@ Para poder seleccionar nuestro modelo una vez que se ha preprocesado los datos, 
 
 Un factor que se tiene muy en común en estos papeles es el uso del modelo RandomForest, este modelo es un algoritmo de Machine Learning supervisado que combina múltiples árboles de decisión para crear un modelo predictivo, este algoritmo se puede utilizar tanto para regresión como clasificación, perfecto para nuestro problema en donde debemos realizar predicciones numéricas y clasificativas.
 
+## Implementación del Modelo
+Ahora con nuestro modelo seleccionado es momento de implementarlo, para esto utilizaremos la librería de sklearn.ensemble, una vez importada la librería se crea el modelo de la siguiente manera:
+
+```python
+from sklearn.ensemble import RandomForestRegressor
+
+model = RandomForestRegressor(
+    n_estimators=100,
+    random_state=42,
+    oob_score= True
+)
+
+model.fit(X_train, y_train_scaled)
+```
+Para esta primera versión del modelo seleccionaremos los siguientes parámetros con el fin de tener una versión base que va empezando a predecir y clasificar nuestros valores:
+- n_estimators=100: Número de árboles de decisión en el bosque.
+- random_state=42: Asegura resultados reproducibles.
+- oob_score=True: Utilizamos la métrica out-of-the-bag para estimar el rendimiento del modelo.
+
+Ahora con nuestro modelo implementado y nuestro dataset limpio, es momento de entrenarlo y obtener resultados.
+
 
 
