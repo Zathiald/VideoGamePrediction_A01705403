@@ -315,5 +315,10 @@ La matriz de confusión del conjunto de prueba muestra que el modelo tuvo dificu
 
 En general, el modelo presentó un desempeño moderado en la predicción de las variables de ventas y de la clasificación `Critic_Score_Class`, durante el entrenamiento, el modelo logró obtener métricas relativamente buenas, especialmente en algunas variables como `JP_Sales`, pero esto podria ser debido a la repeticion del 0 en JP_Sales.
 
-Sin embargo, al evaluar el modelo con datos de prueba, las métricas disminuyeron considerablemente, mostrando problemas de generalización. Esto sugiere la presencia de **overfitting**, ya que el modelo se adaptó demasiado a los datos de entrenamiento y perdió precisión al trabajar con datos no vistos. A pesar de ello, el modelo logró identificar ciertas tendencias relevantes y sirve como una base para los cambios y ajustes próximos que se van a realizar.
+Sin embargo, al evaluar el modelo con datos de prueba, las métricas disminuyeron considerablemente, mostrando problemas de generalización. Esto sugiere la presencia de **overfitting**, ya que el modelo se adaptó demasiado a los datos de entrenamiento y perdió precisión al trabajar con datos no vistos, pero a pesar de ello, el modelo logró identificar ciertas tendencias relevantes y sirve como una base para los cambios y ajustes próximos que se van a realizar.
+
+## Cambios de la Versión #2
+
+### Separación de Modelos
+Uno de los puntos a destacar es el hecho de que en la primera versión del modelo, tanto la regresión como la clasificación se encontraban en un solo modelo, esto hacía que los datos se mezclaran y se volvieran unos difíciles de predecir y otros de clasificar, además que le proporcionaba muy pocos parámetros al modelo para poder realizar las clasificaciones debidas, por ello el mayor cambio que se puede realizar es el dividir el modelo en dos, uno para clasificación y otro para predicción.
 
