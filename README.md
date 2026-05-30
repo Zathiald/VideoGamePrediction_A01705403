@@ -322,3 +322,429 @@ Sin embargo, al evaluar el modelo con datos de prueba, las métricas disminuyero
 ### Separación de Modelos
 Uno de los puntos a destacar es el hecho de que en la primera versión del modelo, tanto la regresión como la clasificación se encontraban en un solo modelo, esto hacía que los datos se mezclaran y se volvieran unos difíciles de predecir y otros de clasificar, además que le proporcionaba muy pocos parámetros al modelo para poder realizar las clasificaciones debidas, por ello el mayor cambio que se puede realizar es el dividir el modelo en dos, uno para clasificación y otro para predicción.
 
+Para esto lo primero que se hizo fue separar los datos de predicción y de input para nuestro modelo de regresión y de clasificación, para clasificación nuestros valores quedan iguales:
+
+```python
+X = vg_data[["Platform", "Genre", "Publisher", "Rating"]]
+
+y_reg = vg_data[
+    [
+        "NA_Sales",
+        "EU_Sales",
+        "JP_Sales",
+        "Other_Sales",
+        "Global_Sales"
+    ]
+]
+```
+Pero ahora para clasificación lo que hicimos fue incluir las ventas como parámetros, esto con el fin de tener más valores reales representativos e importantes que ayuden al modelo realizar la clasificación correcta.
+
+```python
+X_class = vg_data[[
+    "Platform",
+    "Genre",
+    "Publisher",
+    "Rating",
+    "NA_Sales",
+    "EU_Sales",
+    "JP_Sales",
+    "Other_Sales",
+    "Global_Sales"
+]]
+
+y_class = vg_data["Critic_Score_Class"]
+```
+
+Ahora que tenemos la división de variables, tenemos que realizar la codificación y configuración de las variables tanto para regresión y clasificación, un punto importante es que debido al uso de un **MLP Regressor** para regresión, vamos a escalar las variables parámetro de regresión, con el fin de tener datos más centrados para el modelo:
+
+```python
+categorical_features = [
+    "Platform",
+    "Genre",
+    "Publisher",
+    "Rating"
+]
+
+ct = ColumnTransformer(
+    transformers=[
+        (
+            "encoder",
+            OneHotEncoder(handle_unknown="ignore"),
+            categorical_features
+        )
+    ],
+    remainder="passthrough"
+)
+
+scaler_x = MaxAbsScaler()
+
+X = ct.fit_transform(X)
+
+X = scaler_x.fit_transform(X)
+```
+
+Y por otra parte hacemos la codificación para los parámetros de clasificación:
+
+```python
+categorical_features_class = [
+    "Platform",
+    "Genre",
+    "Publisher",
+    "Rating"
+]
+
+numeric_features_class = [
+    "NA_Sales",
+    "EU_Sales",
+    "JP_Sales",
+    "Other_Sales",
+    "Global_Sales"
+]
+
+ct_class = ColumnTransformer(
+
+    transformers=[
+
+        (
+            "cat",
+            OneHotEncoder(handle_unknown="ignore"),
+            categorical_features_class
+        ),
+
+        (
+            "num",
+            StandardScaler(),
+            numeric_features_class
+        )
+    ]
+)
+
+X_class = ct_class.fit_transform(X_class)
+```
+
+Otro punto importante a notar es que al momento de realizar clasificación, el dato de Publisher causa mucho ruido por la variedad de datos, los cuales la mayoría se repiten tan solo una vez, entonces para ello primero haremos el split de datos para regresión:
+
+```python
+X_train, X_test, y_train_reg, y_test_reg = train_test_split(
+    X,
+    y_reg,
+    test_size=0.2,
+    random_state=42,
+    stratify=y_class
+)
+```
+
+Luego agrupamos los datos de publisher que se repitan muy poco en un solo valor llamado Other, para evitar la mayor cantidad de ruido en la clasificación y después de la agrupación ahora dividimos el dataset para clasificación:
+
+```python
+top_publishers = vg_data["Publisher"].value_counts().nlargest(20).index
+
+vg_data["Publisher"] = vg_data["Publisher"].apply(
+
+    lambda x: x if x in top_publishers else "Other"
+)
+
+X_train_class, X_test_class, y_train_class, y_test_class = train_test_split(
+
+    X_class,
+    y_class,
+
+    test_size=0.2,
+
+    random_state=42,
+
+    stratify=y_class
+)
+```
+
+Ahora que hemos preparado nuevamente los datos, vamos a crear los dos modelos diferentes, iniciamos con el de regresión, para el cual usaremos un MLP Regressor, un MLP es un modelo de red neuronal artificial diseñado para predecir valores numéricos continuos, justo lo que buscamos lograr para la predicción de ventas, de igual manera este modelo fue utilizado en el paper escrito por la universidad de Galgotias, dándoles el segundo mejor resultado.
+
+Entonces para esto vamos a tomar los siguientes parámetros al crear el modelo:
+
+
+| Parámetro | Propósito | Valor utilizado | Justificación |
+|------------|------------|----------------|---------------|
+| `hidden_layer_sizes` | Define el número de capas ocultas y neuronas por capa. | `(32, 16)` | Se utilizaron dos capas ocultas decrecientes para capturar relaciones no lineales entre las características del videojuego y las ventas, manteniendo una complejidad moderada que reduzca el riesgo de sobreajuste. |
+| `activation` | Función de activación utilizada en las capas ocultas. | `relu` | ReLU mejora la eficiencia computacional y favorece la convergencia del entrenamiento, especialmente en redes neuronales con múltiples capas. |
+| `solver` | Algoritmo de optimización para actualizar los pesos. | `adam` | Adam es uno de los optimizadores más utilizados para redes neuronales debido a su rapidez de convergencia y buen desempeño en conjuntos de datos con características dispersas provenientes de One-Hot Encoding. |
+| `alpha` | Factor de regularización L2. | `0.1` | Se incorporó regularización para limitar la magnitud de los pesos y reducir el sobreajuste, considerando el elevado número de variables generadas por la codificación categórica. |
+| `learning_rate_init` | Tasa de aprendizaje inicial. | `0.0005` | Se seleccionó una tasa de aprendizaje conservadora para lograr una convergencia más estable y evitar oscilaciones durante la optimización. |
+| `max_iter` | Número máximo de iteraciones de entrenamiento. | `1000` | Se permitió un número elevado de iteraciones para asegurar que el modelo tuviera suficiente tiempo para converger. |
+| `early_stopping` | Detención automática cuando el desempeño deja de mejorar. | `True` | Evita continuar entrenando cuando la mejora en el conjunto de validación es mínima, ayudando a prevenir sobreajuste. |
+| `validation_fraction` | Porcentaje del conjunto de entrenamiento reservado para validación. | `0.1` | Se utilizó el 10% de los datos de entrenamiento para monitorear el rendimiento del modelo durante el aprendizaje. |
+| `n_iter_no_change` | Número de iteraciones sin mejora antes de detener el entrenamiento. | `20` | Permite cierta tolerancia a pequeñas fluctuaciones antes de considerar que el modelo ha convergido. |
+| `random_state` | Semilla para la generación aleatoria. | `42` | Garantiza la reproducibilidad de los resultados obtenidos durante el entrenamiento y la evaluación. |
+
+Ahora con estos valores programamos el modelo y lo entrenamos:
+
+```python
+regressor = MLPRegressor(
+
+    hidden_layer_sizes=(32, 16),
+
+    activation="relu",
+
+    solver="adam",
+
+    alpha=0.1,
+
+    learning_rate_init=0.0005,
+
+    max_iter=1000,
+
+    early_stopping=True,
+
+    validation_fraction=0.1,
+
+    n_iter_no_change=20,
+
+    random_state=42,
+)
+
+regressor.fit(
+    X_train,
+    y_train_reg_scaled
+)
+```
+
+Después, vamos a realizar el modelo para la clasificación, utilizaremos RandomForest aún pero utilizaremos la versión de Classifier, pero para este modelo haremos algo diferente, aquí lo que haremos es utilizar un random search que va probando diferentes parámetros con el fin de obtener el mejor resultado:
+
+```python
+rf = RandomForestClassifier(
+
+    bootstrap=True,
+
+    oob_score=True,
+
+    random_state=42,
+
+    n_jobs=-1
+)
+
+param_distributions = {
+
+    "n_estimators": [100, 200, 300, 500],
+
+    "max_depth": [10, 20, 30, None],
+
+    "min_samples_split": [2, 5, 10],
+
+    "min_samples_leaf": [1, 2, 5],
+
+    "max_features": ["sqrt", "log2"],
+
+    "criterion": ["gini", "entropy"]
+}
+
+random_search = RandomizedSearchCV(
+
+    estimator=rf,
+
+    param_distributions=param_distributions,
+
+    n_iter=20,
+
+    cv=5,
+
+    scoring="f1_weighted",
+
+    verbose=2,
+
+    random_state=42,
+
+    n_jobs=-1
+)
+
+random_search.fit(
+
+    X_train_class,
+
+    y_train_class
+)
+```
+
+Los resultados fueron los siguientes:
+
+| Parámetro | Valor Seleccionado | Descripción |
+|------------|-------------------|-------------|
+| `n_estimators` | 500 | Número de árboles del bosque. Un mayor número de árboles suele producir predicciones más estables. |
+| `min_samples_split` | 5 | Cantidad mínima de muestras necesarias para dividir un nodo. |
+| `min_samples_leaf` | 1 | Número mínimo de muestras requerido en una hoja terminal. |
+| `max_features` | `log2` | Cantidad de variables consideradas en cada división del árbol. |
+| `max_depth` | `None` | Permite que los árboles crezcan sin límite de profundidad. |
+| `criterion` | `gini` | Medida utilizada para evaluar la calidad de cada división. |
+
+### Resultados de la Versión #2
+
+El primer valor que obtuvimos fue el OOB Score del RandomForest Classifier
+
+<img width="163" height="121" alt="image" src="https://github.com/user-attachments/assets/a36800c1-b4dc-443e-9d02-8f4a203b39c5" />
+
+El mejor modelo obtuvo un **OOB-Score ponderado de 0.4651** durante la validación cruzada, y el **OOB Score (Out Of Bag Score)** del modelo final fue de **0.4713**, lo que indica que el rendimiento estimado utilizando muestras no vistas durante el entrenamiento es muy similar al obtenido en validación cruzada, esta cercanía entre ambas métricas sugiere que el modelo presenta una capacidad de generalización consistente sin señales de sobreajuste.
+
+### TRAIN
+
+#### Predicciones Generales
+Primero tomemos un vistazo a los valores que esta prediciendo nuestro modelo, podemos notar que en la clasificación hay un muchísimo mejor resultado en comparación con el modelo anterior y así mismo en la predicción, aunque aún en los valores más altos realiza algunas confusiones.
+
+<img width="1176" height="484" alt="image" src="https://github.com/user-attachments/assets/6f705ef4-0221-44f9-815b-23fc7e041109" />
+
+Ahora vamos a ir variable por variable para analizar como es el rendimiento de cada una:
+
+#### NA_Sales:
+<img width="263" height="169" alt="image" src="https://github.com/user-attachments/assets/a46a3ec0-f6b5-4d9e-9fe1-c6ba860d6db3" />
+
+- MAE: 0.2727
+- MSE: 0.6777
+- RMSE: 0.8232
+- R² Score: 0.3151
+
+El modelo obtuvo un `R² Score = 0.3151`, lo que indica que explica aproximadamente el 31% de la variabilidad de las ventas en Norteamérica y aunque el desempeño en entrenamiento es inferior al de la Versión #1 (`R² = 0.5002`), esta reducción es esperada debido a la incorporación de regularización y técnicas para disminuir el sobreajuste, reflejando un comportamiento más conservador del modelo.
+
+#### EU_Sales:
+<img width="257" height="170" alt="image" src="https://github.com/user-attachments/assets/d5c4c692-0144-4c5a-97e6-15f946e0790c" />
+
+- MAE: 0.1855
+- MSE: 0.3447
+- RMSE: 0.5871
+- R² Score: 0.2619
+
+Para las ventas en Europa, el modelo alcanzó un `R² Score = 0.2619`, si bien este resultado es menor al obtenido en la Versión #1 (`R² = 0.4847`), el modelo presenta una menor tendencia a memorizar los datos de entrenamiento, esto sugiere que la nueva arquitectura prioriza una mejor capacidad de generalización sobre el ajuste perfecto de los datos de entrenamiento, lo cuál es ideal ya que buscamos que aprenda, no que memorice.
+
+#### JP_Sales:
+<img width="260" height="170" alt="image" src="https://github.com/user-attachments/assets/361870cd-8ff0-4051-adad-28aeecaddd9b" />
+
+- MAE: 0.0628
+- MSE: 0.0506
+- RMSE: 0.2249
+- R² Score: 0.3481
+
+La variable `JP_Sales` continúa mostrando uno de los mejores desempeños relativos dentro de las variables de regresión, aunque el `R² Score = 0.3481` es menor al de la Versión #1 (`R² = 0.5175`), los errores siguen siendo relativamente bajos, sin embargo, sigue siendo importante considerar que una gran cantidad de registros presentan valores cercanos a cero, lo que puede influir positivamente en estas métricas.
+
+#### Other_Sales:
+<img width="277" height="168" alt="image" src="https://github.com/user-attachments/assets/940dff3f-7102-4c77-808d-9b90c7311346" />
+
+- MAE: 0.0615
+- MSE: 0.0496
+- RMSE: 0.2227
+- R² Score: 0.2260
+
+Para las ventas en otras regiones, el modelo obtuvo un `R² Score = 0.2260`. Comparado con la Versión #1 (`R² = 0.4847`), existe una disminución en el ajuste sobre los datos de entrenamiento, aun así, el error absoluto continúa siendo reducido debido a la baja magnitud que suelen presentar estas ventas en comparación con otras regiones.
+
+#### Global_Sales:
+<img width="279" height="166" alt="image" src="https://github.com/user-attachments/assets/d4864ed1-8550-4d38-8117-e911e548ef29" />
+
+- MAE: 0.5110
+- MSE: 2.5339
+- RMSE: 1.5918
+- R² Score: 0.3453
+
+La predicción de ventas globales alcanzó un `R² Score = 0.3453` y aunque este resultado es menor que el obtenido en la Versión #1 (`R² = 0.5042`), esto refleja un modelo menos propenso al sobreajuste, los errores continúan siendo los más altos entre todas las variables debido a que esta métrica concentra la variabilidad de todas las regiones.
+
+#### Critic_Score_Class:
+<img width="321" height="170" alt="image" src="https://github.com/user-attachments/assets/f8e5ffdb-6159-44b1-b60d-448006ff7393" />
+
+- Accuracy: 0.9597
+- Precision: 0.9601
+- Recall: 0.9597
+- F1 Score: 0.9598
+
+La clasificación de críticas mostró una mejora muy importante durante el entrenamiento. El modelo alcanzó un `Accuracy = 0.9597` y un `F1 Score = 0.9598`, superando ampliamente los resultados de la Versión #1 (`Accuracy = 0.5486`, `F1 = 0.5335`), esto demuestra que la incorporación de las variables de ventas como parámetros de entrada aporta información valiosa para la clasificación de la crítica.
+
+#### Matriz de Confusión 
+
+Así mismo tomamos un vistazo a nuevamente a la matriz de confusión 
+
+<img width="569" height="518" alt="image" src="https://github.com/user-attachments/assets/f3db5800-de07-4c45-b3c7-a7a5dfb91b6f" />
+
+Podemos ver como el modelo ha mejorado bastante en clasificar las categorías correctamente, con un color diagonal directo que representa la mayoría de los datos clasificados correctamente.
+
+
+### TEST
+
+#### Predicciones Generales
+Tomamos nuevamente un vistazo a los valores que esta prediciendo nuestro modelo, podemos notar una gran mejora en cuánto a la clasificación y predicción de valores en comparación con el antiguo modelo, aún existe confusión en ventas altas, pero es menor que la versión #1
+
+<img width="1206" height="482" alt="image" src="https://github.com/user-attachments/assets/dc2ddecc-076c-4393-87ee-9138ac36eaf8" />
+
+Ahora vamos a ir variable por variable para analizar como es el rendimiento de cada una:
+
+#### NA_Sales:
+<img width="254" height="174" alt="image" src="https://github.com/user-attachments/assets/82cc3b97-5751-47d7-a5df-9ed803a41561" />
+
+- MAE: 0.3013
+- MSE: 0.4872
+- RMSE: 0.6947
+- R² Score: 0.1841
+
+En el conjunto de prueba, el modelo mejoró respecto a la Versión #1. El `R² Score` aumentó de `0.0712` a `0.1841`, mientras que el `MAE` disminuyó de `0.3246` a `0.3013`, esto indica que el modelo logra generalizar mejor las ventas en Norteamérica y reducir el error promedio de predicción.
+
+#### EU_Sales:
+<img width="250" height="174" alt="image" src="https://github.com/user-attachments/assets/3d4d55cd-7988-4d5a-8845-e709aa53f8ac" />
+
+- MAE: 0.2229
+- MSE: 0.3823
+- RMSE: 0.6183
+- R² Score: 0.1383
+
+Las ventas en Europa mostraron una mejora considerable frente a la Versión #1. El `R² Score` pasó de `-0.0809` a `0.1383`, lo que significa que el modelo ahora logra capturar parte de la variabilidad presente en los datos de prueba, y aunque aún existe margen de mejora, la capacidad de generalización aumentó significativamente.
+
+#### JP_Sales:
+<img width="248" height="173" alt="image" src="https://github.com/user-attachments/assets/e1d1495c-e4d1-4fd4-9be8-c79a9167b4c5" />
+
+- MAE: 0.072
+- MSE: 0.0716
+- RMSE: 0.2675
+- R² Score: 0.2160
+
+La variable `JP_Sales` presentó una mejora notable en generalización. El `R² Score` aumentó de `0.0958` a `0.2160`, mostrando que el modelo logra explicar una mayor proporción de la variabilidad de los datos de prueba, no obstante, sigue siendo necesario considerar la alta presencia de valores cercanos a cero dentro del dataset, lo que sugiere que se debería buscar más datos representativos.
+
+#### Other_Sales:
+<img width="271" height="172" alt="image" src="https://github.com/user-attachments/assets/2aa05382-cb2b-4443-a385-56717a69635d" />
+
+- MAE: 0.0809
+- MSE: 0.0870
+- RMSE: 0.2949
+- R² Score: 0.1043
+
+Las ventas de otras regiones también mejoraron respecto a la versión anterior. El `R² Score` pasó de `-0.0583` a `0.1043`, permitiendo que el modelo explique parte de la variabilidad de los datos de prueba, y aunque los errores aumentaron ligeramente, la mejora en capacidad predictiva es evidente, un gran paso para la mejora del modelo.
+
+#### Global_Sales:
+<img width="275" height="174" alt="image" src="https://github.com/user-attachments/assets/44b7a3f7-4b87-4cdb-930e-68ebcb7ea231" />
+
+- MAE: 0.6028
+- MSE: 2.8163
+- RMSE: 1.6782
+- R² Score: 0.1387
+
+La predicción de ventas globales mostró una mejora importante en comparación con la Versión #1. El `R² Score` aumentó de `-0.0189` a `0.1387`, indicando una mejor capacidad para generalizar sobre datos no vistos, además, el `MAE` disminuyó de `0.6505` a `0.6028`, reflejando una reducción en el error promedio.
+
+#### Critic_Score_Class:
+<img width="311" height="164" alt="image" src="https://github.com/user-attachments/assets/243cdf52-4840-4ee8-b6c6-e15dbb888798" />
+
+- Accuracy: 0.4631
+- Precision: 0.4564
+- Recall: 0.4631
+- F1 Score: 0.4581
+
+
+La clasificación de críticas mejoró significativamente en el conjunto de prueba. El `Accuracy` aumentó de `0.3443` a `0.4631`, mientras que el `F1 Score` pasó de `0.2965` a `0.4581`, y aunque el rendimiento aún está lejos de los resultados observados en entrenamiento, la mejora demuestra que la incorporación de información de ventas y la optimización de hiperparámetros permitieron obtener un clasificador más robusto y con mejor capacidad de generalización.
+
+#### Matriz de Confusión 
+
+Así mismo tomamos un vistazo a nuevamente a la matriz de confusión 
+
+<img width="564" height="521" alt="image" src="https://github.com/user-attachments/assets/2a11bb81-79d4-4f99-a7f3-d4ad4ed994bb" />
+
+Se puede notar menor confusión en el modelo que en la versión anterior, con la mayoría de datos apareciendo en sus lugares correctos, pero aún existen gran parte de datos que son confundidos a la hora de ser clasificados correctamente.
+
+### Conclusiones Versión #2
+
+La segunda versión del modelo logró mejoras importantes en la capacidad de generalización respecto a la Versión #1. Aunque las métricas de entrenamiento para las variables de regresión disminuyeron, las métricas de prueba mejoraron en todas las regiones analizadas, lo que indica una reducción del sobreajuste observado anteriormente.
+
+La mejora más significativa se produjo en la clasificación de `Critic_Score_Class`, donde la incorporación de las ventas como variables de entrada y la optimización mediante `RandomizedSearchCV` permitieron incrementar considerablemente las métricas de Accuracy y F1 Score tanto en entrenamiento como en prueba.
+
+A pesar de estos avances, las métricas de regresión continúan mostrando valores de `R²` relativamente bajos, especialmente para las ventas globales, lo que sugiere que aún existen variables relevantes que no están siendo consideradas por el modelo y que podrían incorporarse en futuras versiones para mejorar la precisión de las predicciones, así como a buscar experimentar con otro dataset que incluya una mayor cantidad de datos verídicos.
+
+
+
