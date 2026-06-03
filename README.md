@@ -7,6 +7,12 @@ Este proyecto es parte del curso "Desarrollo de aplicaciones avanzadas de cienci
 - Publisher
 - Rating
 
+Después del Modelo #3 se agregaron los parámetros de:
+- Year of release
+- User Score
+- User Count
+- Critic Count
+
 Entonces sea capaz de predecir:
 - Ventas en Norteamérica
 - Ventas en Europa
@@ -43,7 +49,7 @@ Finalmente se aplicó un escalamiento a las variables objetivo con el fin de nor
 | `JP_Sales` | Numérica Continua | Representa las ventas del videojuego en Japón. Los valores están expresados en millones de copias vendidas. |
 | `Other_Sales` | Numérica Continua | Representa las ventas del videojuego en otras regiones distintas de Norteamérica, Europa y Japón. |
 | `Global_Sales` | Numérica Continua | Representa las ventas globales totales del videojuego, considerando todas las regiones. |
-| `Critic_Score_Class` | Categórica Ordinal | Clasificación de la crítica del videojuego agrupada en categorías. Esta variable fue transformada a valores numéricos utilizando `LabelEncoder` para poder ser utilizada por el modelo de Machine Learning. |
+| `Critic_Score_Class` | Numérica Continua  | Clasificación de la crítica del videojuego agrupada en categorías. Esta variable fue transformada a valores numéricos utilizando `LabelEncoder` para poder ser utilizada por el modelo de Machine Learning. |
 
 El resto de las columnas no fueron escaladas ya que estás nos serviran de parámetros de entrada a la hora de hacer la predicción de datos.
 
@@ -113,6 +119,7 @@ Estas métricas se aplican a las variables:
 - `JP_Sales`
 - `Other_Sales`
 - `Global_Sales`
+- `Critic_Score_Class`
 
 | Métrica | Significado | Cómo Interpretarla |
 |---|---|---|
@@ -123,7 +130,9 @@ Estas métricas se aplican a las variables:
 
 ---
 
-### Métricas de Clasificación
+### Métricas Obsoletas
+
+#### Métricas de Clasificación
 Estas métricas fueron escogidas en base a papeles de trabajos de clasificación como lo son **GPT Sniffer** [Ver Paper](https://www.sciencedirect.com/science/article/pii/S0164121224001043?via%3Dihub), un research de un modelo encargado de clasificar fragmentos de código cómo entre hechos por ChatGPT o humanos, un gran punto de referencia para nuestras métricas de clasificación a utilizar.
 
 Estas métricas se aplican a:
@@ -139,7 +148,7 @@ Estas métricas se aplican a:
 
 ---
 
-### Métrica Interna del Random Forest
+#### Métrica Interna del Random Forest
 
 | Métrica | Significado | Cómo Interpretarla |
 |---|---|---|
@@ -229,14 +238,12 @@ Podemos ver que la confusión que muestra el desempeño del modelo al clasificar
 
 En general, el modelo presenta un desempeño moderado, logrando identificar correctamente una cantidad importante de ejemplos, aunque todavía existen errores al diferenciar categorías de crítica similares.
 
-
 ### TEST
 
 #### Predicciones Generales
 Ahora tomemos un vistazo a los valores que esta prediciendo nuestro modelo una vez que le damos el dataset de test, podemos notar que en los datos numéricos hay un mucho mayor número de datos que predicen por abajo del valor real y además hay muchos más casos en donde la clasificación falla.
 
 <img width="1731" height="698" alt="image" src="https://github.com/user-attachments/assets/66ab7172-a210-4e24-b401-a1b02ad8d75d" />
-
 
 Ahora vamos a ir variable por variable para analizar como es el rendimiento de cada una:
 
@@ -259,7 +266,6 @@ En las ventas de Norteamérica, el modelo presentó una disminución importante 
 - R² Score: -0.0809
 
 Para las ventas en Europa, el desempeño empeoró notablemente en comparación con los resultados anteriores. El `R² Score = -0.0809` indica que el modelo no logró generalizar correctamente sobre los datos de prueba. Aunque el `RMSE = 0.5698` sigue siendo moderado, las predicciones presentan más diferencias respecto a los valores reales.
-
 
 #### JP_Sales:
 <img width="322" height="251" alt="image" src="https://github.com/user-attachments/assets/1d27d69f-f636-47b9-b1d5-9ec25ea5f38e" />
@@ -301,7 +307,6 @@ La predicción de ventas globales presentó nuevamente los errores más altos en
 - F1 Score: 0.2965
 
 La clasificación de críticas mostró una disminución importante respecto al entrenamiento. El `Accuracy = 0.3443` indica que el modelo solo logró clasificar correctamente aproximadamente el 34% de los casos. De igual manera, `Precision`, `Recall` y `F1 Score` disminuyeron considerablemente, lo que sugiere que el modelo presenta problemas de generalización y posibles indicios de sobreajuste.
-
 
 #### Matriz de Confusión 
 
@@ -659,7 +664,6 @@ Así mismo tomamos un vistazo a nuevamente a la matriz de confusión
 
 Podemos ver como el modelo ha mejorado bastante en clasificar las categorías correctamente, con un color diagonal directo que representa la mayoría de los datos clasificados correctamente.
 
-
 ### TEST
 
 #### Predicciones Generales
@@ -727,7 +731,6 @@ La predicción de ventas globales mostró una mejora importante en comparación 
 - Recall: 0.4631
 - F1 Score: 0.4581
 
-
 La clasificación de críticas mejoró significativamente en el conjunto de prueba. El `Accuracy` aumentó de `0.3443` a `0.4631`, mientras que el `F1 Score` pasó de `0.2965` a `0.4581`, y aunque el rendimiento aún está lejos de los resultados observados en entrenamiento, la mejora demuestra que la incorporación de información de ventas y la optimización de hiperparámetros permitieron obtener un clasificador más robusto y con mejor capacidad de generalización.
 
 #### Matriz de Confusión 
@@ -745,6 +748,325 @@ La segunda versión del modelo logró mejoras importantes en la capacidad de gen
 La mejora más significativa se produjo en la clasificación de `Critic_Score_Class`, donde la incorporación de las ventas como variables de entrada y la optimización mediante `RandomizedSearchCV` permitieron incrementar considerablemente las métricas de Accuracy y F1 Score tanto en entrenamiento como en prueba.
 
 A pesar de estos avances, las métricas de regresión continúan mostrando valores de `R²` relativamente bajos, especialmente para las ventas globales, lo que sugiere que aún existen variables relevantes que no están siendo consideradas por el modelo y que podrían incorporarse en futuras versiones para mejorar la precisión de las predicciones, así como a buscar experimentar con otro dataset que incluya una mayor cantidad de datos verídicos.
+
+## Cambios de la Versión #3
+Para esta tercer versión del modelo, se decidió tomar un enfoque diferente para la mejora de las predicciones, algo que destaca mucho en ambas versiones es el hecho de que la información proveniente del dataset no es la suficiente, y no por cantidad, sino por calidad, los 4 parámetros de:
+- Platform
+- Genre
+- Publisher
+- Rating
+no son suficientes para que el modelo haga mejores predicciones, entonces para ello primero se decidió investigar por un nuevo dataset y se encontró uno
+
+| Dataset | Descripción | Registros | Link |
+|---|---|---|---|
+| 🎮 **Video Game Sales and Ratings** | Dataset creado por **Sumit Kumar Shukla** que contiene información de ventas de videojuegos, incluyendo ratings de usuarios y críticos | 11,563 datos | [Ver Dataset](https://www.kaggle.com/datasets/thedevastator/video-game-sales-and-ratings?select=Video_Games.csv) |
+
+Con este dataset hay 4 datos parámetros muy importantes que pueden aportar bastante a la predicciones que hace nuestro model, estos siendo:
+- Year of release
+- User Score
+- User Count
+- Critic Count
+
+Pero además algo que destacar es que en este dataset el critic score es una variable numérica 
+
+Entonces para poder modificar nuestro modelo, primero debemos modificar la lectura de nuestro dataset inicial:
+
+```python
+vg_data = pd.read_csv("../Video_Games.csv")
+```
+Luego para la refactorización de datos debemos primero soltar todos los datos que no tengan información, además vamos a guardar las ventas originales, así como sus transformaciones logarítmicas, estás transformaciones permiten que los datos sean mejor procesados por el modelo
+
+```python
+vg_data = vg_data.dropna(
+    subset=[
+        "Platform",
+        "Genre",
+        "Publisher",
+        "Developer",
+        "Rating",
+        "Year_of_Release",
+        "Critic_Score",
+        "User_Score",
+        "User_Count"
+    ]
+)
+
+sales_original = vg_data[
+    [
+        "NA_Sales",
+        "EU_Sales",
+        "JP_Sales",
+        "Other_Sales",
+        "Global_Sales"
+    ]
+].copy()
+
+sales_columns = [
+    "NA_Sales",
+    "EU_Sales",
+    "JP_Sales",
+    "Other_Sales",
+    "Global_Sales"
+]
+
+vg_data[sales_columns] = np.log1p(
+    vg_data[sales_columns]
+)
+```
+
+Aquí el punto más importante va a ser la construcción de nuestras X Y, para esto debemos agregar los nuevos parámetros a la X:
+```python
+X = vg_data[
+    [
+        "Platform",
+        "Genre",
+        "Publisher",
+        "Developer",
+        "Rating",
+        "Year_of_Release",
+        "Critic_Count",
+        "User_Score",
+        "User_Count"
+    ]
+]
+
+y_reg = vg_data[
+    [
+        "NA_Sales",
+        "EU_Sales",
+        "JP_Sales",
+        "Other_Sales",
+        "Global_Sales",
+        "Critic_Score"
+    ]
+]
+```
+
+Ahora para la construcción del modelo, vamos a seguir utilizando un MLPRegressor, pero vamos a modificar alguno de los parámetros, quedando con estos valores:
+
+| Parámetro | Propósito | Valor utilizado | Justificación |
+|------------|------------|----------------|---------------|
+| `hidden_layer_sizes` | Define el número de capas ocultas y neuronas por capa. | `(128, 64, 32)` | Se utilizaron tres capas ocultas con una estructura decreciente para permitir que la red neuronal capture relaciones complejas y no lineales entre las características del videojuego y las variables objetivo. La reducción progresiva de neuronas ayuda a extraer patrones cada vez más específicos y a disminuir el riesgo de sobreajuste. |
+| `activation` | Función de activación utilizada en las capas ocultas. | `relu` | ReLU mejora la eficiencia computacional, acelera la convergencia del entrenamiento y reduce el problema del desvanecimiento del gradiente en redes neuronales profundas. |
+| `solver` | Algoritmo de optimización para actualizar los pesos. | `adam` | Adam combina las ventajas de los métodos AdaGrad y RMSProp, ofreciendo una convergencia rápida y estable en conjuntos de datos con gran cantidad de variables generadas mediante One-Hot Encoding. |
+| `alpha` | Factor de regularización L2. | `0.001` | Se aplicó una regularización moderada para controlar la complejidad del modelo y reducir el sobreajuste sin limitar excesivamente la capacidad de aprendizaje de la red neuronal. |
+| `learning_rate_init` | Tasa de aprendizaje inicial. | `0.001` | Se seleccionó una tasa de aprendizaje equilibrada que permite un aprendizaje eficiente y estable, favoreciendo una convergencia adecuada durante el entrenamiento. |
+| `max_iter` | Número máximo de iteraciones de entrenamiento. | `1000` | Se permitió un número elevado de iteraciones para asegurar que el optimizador tuviera suficiente tiempo para converger antes de alcanzar el límite de entrenamiento. |
+| `early_stopping` | Detención automática cuando el desempeño deja de mejorar. | `True` | Permite finalizar el entrenamiento cuando el rendimiento en validación deja de mejorar, evitando entrenamientos innecesarios y reduciendo el riesgo de sobreajuste. |
+| `validation_fraction` | Porcentaje del conjunto de entrenamiento reservado para validación. | `0.1` | Se reservó el 10% de los datos de entrenamiento para monitorear el desempeño del modelo durante el proceso de aprendizaje y apoyar la estrategia de parada temprana. |
+| `n_iter_no_change` | Número de iteraciones sin mejora antes de detener el entrenamiento. | `20` | Se estableció una tolerancia de 20 iteraciones para permitir pequeñas fluctuaciones en el rendimiento antes de considerar que el modelo ha convergido. |
+| `random_state` | Semilla para la generación aleatoria. | `42` | Garantiza la reproducibilidad de los resultados obtenidos durante el entrenamiento, la validación y la evaluación del modelo. |
+
+Y la codificación quedaría así:
+
+```python
+regressor = MLPRegressor(
+
+    hidden_layer_sizes=(128, 64, 32),
+
+    activation="relu",
+
+    solver="adam",
+
+    alpha=0.001,
+
+    learning_rate_init=0.001,
+
+    max_iter=1000,
+
+    early_stopping=True,
+
+    validation_fraction=0.1,
+
+    n_iter_no_change=20,
+
+    random_state=42
+)
+```
+### Resultados de la Versión #3
+
+### TRAIN
+
+#### Predicciones Generales
+Tomemos un vistazo a las predicciones que esta realizando nuestro modelo, podemos notar un mejor balance entre las ventas y las predicciones de la calificación de la crítica, los fatos se acercan mucho más que en versiones anteriores del modelo.
+
+<img width="1522" height="689" alt="image" src="https://github.com/user-attachments/assets/40e352f3-c403-4958-a489-9036100f2763" />
+
+Ahora vamos a ir variable por variable para analizar como es el rendimiento de cada una:
+
+#### NA_Sales:
+
+<img width="310" height="205" alt="image" src="https://github.com/user-attachments/assets/6fc1bbdd-9713-42e8-b9eb-0c6cddb9df01" />
+
+- MAE: 0.1864
+- MSE: 0.4619
+- RMSE: 0.6796
+- R² Score: 0.5297
+
+El modelo mostró una mejora importante respecto a la Versión #2, el `R² Score` aumentó de `0.3151` a `0.5297`, mientras que el MAE disminuyó de 0.2727 a 0.1864, esto indica que la incorporación de variables como User_Score, User_Count, Critic_Count y Year_of_Release aporta información relevante para explicar las ventas en Norteamérica, permitiendo que la red neuronal capture patrones más precisos durante el entrenamiento.
+
+#### EU_Sales:
+
+<img width="305" height="205" alt="image" src="https://github.com/user-attachments/assets/d3cb6cb5-96a0-4e67-b0e9-01be15673329" />
+
+- MAE: 0.1297
+- MSE: 0.2381
+- RMSE: 0.4880
+- R² Score: 0.5317
+
+Las ventas en Europa mostraron una mejora considerable respecto a la Versión #2, el `R² Score` aumentó de `0.2619` a `0.5317`, lo que indica que el modelo ahora logra explicar más de la mitad de la variabilidad presente en los datos de entrenamiento. Además, la disminución del `MAE` de `0.1855` a `0.1297` refleja una reducción importante en el error promedio de predicción, estos resultados sugieren que la incorporación de nuevas variables relacionadas con usuarios, críticas y año de lanzamiento aportó información relevante para comprender mejor el comportamiento de las ventas europeas.
+
+#### JP_Sales:
+
+<img width="302" height="207" alt="image" src="https://github.com/user-attachments/assets/cea3bb79-70f1-4295-9dc0-937fb0062989" />
+
+- MAE: 0.0436
+- MSE: 0.0253
+- RMSE: 0.1589
+- R² Score: 0.7175
+
+La variable `JP_Sales` presentó uno de los mejores desempeños de todo el modelo durante el entrenamiento. El `R² Score` aumentó de `0.3481` a `0.7175`, permitiendo explicar más del 71% de la variabilidad de los datos. De igual forma, los errores `MAE` y `RMSE` disminuyeron considerablemente respecto a la versión anterior, esto demuestra que los nuevos parámetros incorporados permiten capturar mejor los factores que influyen en las ventas dentro del mercado japonés.
+
+#### Other_Sales:
+
+<img width="326" height="202" alt="image" src="https://github.com/user-attachments/assets/da7f42ad-6f31-4dcd-8f80-8ec3eb32bda5" />
+
+- MAE: 0.0462
+- MSE: 0.0431
+- RMSE: 0.2076
+- R² Score: 0.4633
+
+Para las ventas correspondientes a otras regiones, el modelo también mostró una mejora importante frente a la Versión #2, el `R² Score` pasó de `0.2260` a `0.4633`, mientras que el `MAE` disminuyó de `0.0615` a `0.0462`, esto indica que el modelo logra representar de manera más precisa los patrones presentes en esta variable durante el entrenamiento, y aunque estas ventas suelen presentar valores relativamente pequeños en comparación con otras regiones, los resultados reflejan una mejora en la capacidad predictiva de la red neuronal.
+
+#### Global_Sales:
+
+<img width="337" height="210" alt="image" src="https://github.com/user-attachments/assets/b0a48a49-51b3-4cab-a4fd-e0200c8a1f95" />
+
+- MAE: 0.3373
+- MSE: 1.5177
+- RMSE: 1.232
+- R² Score: 0.6353
+
+La predicción de ventas globales presentó una mejora muy significativa respecto a la versión anterior, el `R² Score` aumentó de `0.3453` a `0.6353`, mientras que el `MAE` disminuyó de `0.5110` a `0.3373`, esto significa que el modelo logra explicar aproximadamente el 64% de la variabilidad observada en las ventas globales durante el entrenamiento, debido a que esta variable integra el comportamiento de todas las regiones, esta mejora representa una evidencia importante de que las nuevas características añadidas al dataset aportan información valiosa para la predicción del éxito comercial de los videojuegos.
+
+#### Critic_Score_Class:
+
+<img width="335" height="202" alt="image" src="https://github.com/user-attachments/assets/52ea9b40-e3a5-45f2-a344-956264959444" />
+
+- MAE: 4.9002
+- MSE: 45.7827
+- RMSE: 6.7663
+- R² Score: 0.7646
+
+La predicción de la variable `Critic_Score` obtuvo uno de los mejores resultados del modelo durante el entrenamiento, el `R² Score = 0.7646` indica que la red neuronal logra explicar más del 76% de la variabilidad presente en las calificaciones de los críticos y además, el `MAE = 4.9002` muestra que las predicciones presentan un error promedio relativamente bajo considerando que la escala de puntuación va de 0 a 100 puntos, estos resultados sugieren que variables como `User_Score`, `User_Count`, `Critic_Count` y el año de lanzamiento proporcionan información altamente relevante para estimar la recepción crítica de un videojuego, además es un gran resultado para el cambio a predicción que se hizo para esta variable.
+
+### TEST
+
+#### Predicciones Generales
+Tomemos un vistazo a las predicciones que esta realizando nuestro modelo en test, podemos ver que el modelo deja de tratar de predecir tantas veces valores nefativos, además que los valores se encuentran cada vez en rangos más cercanos al real.
+
+<img width="1520" height="742" alt="image" src="https://github.com/user-attachments/assets/e8a1ca3a-d8f8-407c-a1a1-f491915c3fa1" />
+
+Ahora vamos a ir variable por variable para analizar como es el rendimiento de cada una:
+
+#### NA_Sales:
+
+<img width="295" height="206" alt="image" src="https://github.com/user-attachments/assets/6975e177-4e19-4453-80c5-aa1f100205b1" />
+
+- MAE: 0.2661
+- MSE: 0.4381
+- RMSE: 0.6619
+- R² Score: 0.4211
+
+En el conjunto de prueba, las ventas de Norteamérica mostraron una mejora importante respecto a la Versión #2, el `R² Score` aumentó de `0.1841` a `0.4211`, mientras que el `MAE` disminuyó de `0.3013` a `0.2661`, esto indica que el modelo logró generalizar mejor sobre datos no vistos y capturar una mayor proporción de la variabilidad de las ventas reales, la mejora demuestra que la incorporación de nuevas variables permitió construir un modelo más robusto y con una mejor capacidad predictiva.
+
+#### EU_Sales:
+
+<img width="297" height="203" alt="image" src="https://github.com/user-attachments/assets/73811d26-c42a-4c55-b869-eca8f77e3fb4" />
+
+- MAE: 0.1867
+- MSE: 0.2076
+- RMSE: 0.4557
+- R² Score: 0.3757
+
+Las ventas en Europa también presentaron una mejora considerable en comparación con la versión anterior, el `R² Score` aumentó de `0.1383` a `0.3757`, lo que indica que el modelo es capaz de explicar una mayor parte de la variabilidad observada en los datos de prueba, adicionalmente, el `MAE` disminuyó de `0.2229` a `0.1867`, mostrando una reducción en el error promedio de las predicciones y estos resultados reflejan una mejor capacidad de generalización y un aprovechamiento efectivo de las nuevas variables incorporadas al dataset.
+
+#### JP_Sales:
+
+<img width="292" height="198" alt="image" src="https://github.com/user-attachments/assets/7df2358e-880a-4c82-9493-f9e3c53a2a05" />
+
+- MAE: 0.0552
+- MSE: 0.0371
+- RMSE: 0.1927
+- R² Score: 0.3284
+  
+La variable `JP_Sales` mantuvo una mejora consistente durante la evaluación con datos de prueba, el `R² Score` aumentó de `0.2160` a `0.3284`, mientras que el `RMSE` disminuyó de `0.2675` a `0.1927`, esto indica que el modelo logró mejorar su capacidad para generalizar las predicciones sobre videojuegos no vistos durante el entrenamiento.
+
+#### Other_Sales:
+
+<img width="319" height="200" alt="image" src="https://github.com/user-attachments/assets/72ff7c53-69f9-4f78-928f-748a000b8ff1" />
+
+- MAE: 0.0656
+- MSE: 0.0280
+- RMSE: 0.1673
+- R² Score: 0.3212
+  
+Las ventas correspondientes a otras regiones mostraron una mejora significativa respecto a la Versión #2, el `R² Score` aumentó de `0.1043` a `0.3212`, mientras que el `MAE` disminuyó de `0.0809` a `0.0656`, esto demuestra que el modelo es capaz de capturar con mayor precisión los patrones presentes en los datos y reducir los errores de predicción, y aunque se trata de una variable con valores relativamente bajos, la mejora observada confirma una mayor capacidad predictiva por parte de la red neuronal.
+
+#### Global_Sales:
+
+<img width="328" height="205" alt="image" src="https://github.com/user-attachments/assets/ce7b5861-4e59-4001-94e1-09fdaef6d015" />
+
+- MAE: 0.5130
+- MSE: 1.8072
+- RMSE: 1.3443
+- R² Score: 0.3184
+
+La predicción de ventas globales continuó mostrando avances importantes durante la evaluación del modelo, el `R² Score` aumentó de `0.1387` a `0.3184`, mientras que el `MAE` disminuyó de `0.6028` a `0.5130`, estos resultados indican una mejor capacidad para generalizar sobre datos no vistos y reducir las diferencias entre los valores reales y los predichos, y debido a que esta variable concentra la información de todas las regiones, esta mejora representa uno de los indicadores más relevantes del progreso general alcanzado en esta versión.
+
+#### Critic_Score_Class:
+
+<img width="328" height="202" alt="image" src="https://github.com/user-attachments/assets/14a47dbe-391f-419d-820f-a2ddc7ea7a5b" />
+
+- MAE: 7.1019
+- MSE: 91.1825
+- RMSE: 9.5490
+- R² Score: 0.5056
+
+La predicción de `Critic_Score` mantuvo un desempeño sólido en el conjunto de prueba, el modelo obtuvo un `R² Score = 0.5056`, lo que indica que es capaz de explicar aproximadamente el 50% de la variabilidad presente en las puntuaciones reales de los críticos para videojuegos no vistos durante el entrenamiento, además, el `MAE = 7.1019` muestra que las predicciones presentan un error promedio cercano a siete puntos sobre una escala de cien, un resultado razonable considerando la complejidad inherente a las evaluaciones realizadas por los críticos, estos resultados muestran que el modelo logró generalizar adecuadamente y aprovechar la información adicional proporcionada por el nuevo dataset.
+
+### MAPE por Variable
+
+<img width="847" height="452" alt="image" src="https://github.com/user-attachments/assets/030afdab-b340-4105-97bd-a7a4e224f79a" />
+
+Esta gráfica presenta el **MAPE (Mean Absolute Percentage Error)** obtenido para cada una de las variables predichas por el modelo. 
+
+Esta métrica permite medir el error porcentual promedio entre los valores reales y los valores estimados, siendo útil para comparar el desempeño relativo entre diferentes variables, se puede observar que algunas variables de ventas presentan valores elevados de MAPE, especialmente `JP_Sales` y `EU_Sales`, debido a la gran cantidad de registros con ventas cercanas a cero.
+
+### Desempeño del Modelo por Variable
+
+<img width="998" height="553" alt="image" src="https://github.com/user-attachments/assets/468cfcbf-15ed-47cc-926a-e1e899e773ac" />
+
+Esta gráfica compara los valores de **R² Score** obtenidos en los conjuntos de entrenamiento y prueba para cada una de las variables objetivo. 
+
+Se observa que todas las variables mantienen resultados positivos en el conjunto de prueba, demostrando que el modelo logró generalizar adecuadamente sobre datos no vistos, además, `Critic_Score` destaca como la variable con mejor desempeño general, mientras que las variables de ventas presentan una diferencia moderada entre entrenamiento y prueba, algo esperado debido a la complejidad inherente de la predicción de ventas de videojuegos.
+
+### Predicción vs Valor Real
+
+<img width="1240" height="825" alt="image" src="https://github.com/user-attachments/assets/2d460886-8436-4a23-a587-f46068bd439a" />
+
+Estas gráficas muestran la relación entre los valores reales y los valores predichos para cada una de las variables del modelo, la línea diagonal punteada representa una predicción perfecta, donde el valor predicho coincide exactamente con el valor real, mientras más cercanos se encuentren los puntos a esta línea, mejor será la precisión del modelo. 
+
+En las variables de ventas se observa que el modelo logra capturar correctamente la tendencia general de los datos, aunque sigue presentando mayores errores en videojuegos con ventas extremadamente altas debido a la menor cantidad de ejemplos disponibles en el dataset, por otro lado, la variable `Critic_Score` presenta una distribución mucho más cercana a la línea ideal, lo que confirma los buenos resultados observados previamente en las métricas de evaluación.
+
+### Conclusiones Versión #3
+
+La tercera versión del modelo logró una mejora significativa tanto en entrenamiento como en prueba. La incorporación de nuevas variables como `Year_of_Release`, `User_Score`, `User_Count` y `Critic_Count`, junto con el uso de un dataset más completo, permitió que el modelo capturara mejor los patrones relacionados con las ventas y las calificaciones de los videojuegos.
+
+Los resultados muestran incrementos importantes en los valores de `R² Score` para todas las variables analizadas, especialmente en el conjunto de prueba, lo que indica una mejor capacidad de generalización respecto a las versiones anteriores. En particular, la predicción de `Critic_Score` alcanzó resultados sólidos, demostrando que las nuevas características aportan información relevante para el aprendizaje del modelo.
+
+En general, esta versión representa el mejor desempeño obtenido durante el proyecto. Aunque todavía existe margen de mejora en algunas variables de ventas, los resultados confirman que la calidad de los datos y la incorporación de características más informativas tuvieron un impacto mucho mayor que los ajustes realizados únicamente sobre la arquitectura del modelo.
+
 
 
 
