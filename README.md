@@ -1067,6 +1067,47 @@ Los resultados muestran incrementos importantes en los valores de `R² Score` pa
 
 En general, esta versión representa el mejor desempeño obtenido durante el proyecto. Aunque todavía existe margen de mejora en algunas variables de ventas, los resultados confirman que la calidad de los datos y la incorporación de características más informativas tuvieron un impacto mucho mayor que los ajustes realizados únicamente sobre la arquitectura del modelo.
 
+## Implementación del Modelo
+
+Para utilizar el modelo ya entrenado y preparado, lo que hacemos es primero guardar el modelo junto con los transformadores que hemos estado usando para manipular las variables, utilizaremos la librería joblib:
+
+```python
+joblib.dump(regressor, "modelo_videojuegos.pkl")
+joblib.dump(ct, "encoder.pkl")
+joblib.dump(scaler_x, "scaler_x.pkl")
+joblib.dump(scaler, "scaler_y.pkl")
+```
+
+Luego de esto cargamos el modelo y creamos las variables para cada input que vamos a estar poniendo dentro del modelo:
+
+```python
+regressor = joblib.load("modelo_videojuegos.pkl")
+ct = joblib.load("encoder.pkl")
+scaler_x = joblib.load("scaler_x.pkl")
+scaler = joblib.load("scaler_y.pkl")
+
+platforms = sorted(vg_data["Platform"].dropna().unique())
+genres = sorted(vg_data["Genre"].dropna().unique())
+publishers = sorted(vg_data["Publisher"].dropna().unique())
+developers = sorted(vg_data["Developer"].dropna().unique())
+ratings = sorted(vg_data["Rating"].dropna().unique())
+```
+
+Luego unaa vez listo vamos a crear primero una pantalla de inputs, está es manipulable y además contiene todas las opciones con las que ha entrenado el modelo:
+
+<img width="593" height="341" alt="image" src="https://github.com/user-attachments/assets/4f6b430e-a242-4cdc-ac03-64f65a6f4da9" />
+
+Y con un botón con el cual presionamos *Predecir* y nos da el resultado de la predicción hecha por el modelo con los inputs que le dimos:
+
+<img width="167" height="197" alt="image" src="https://github.com/user-attachments/assets/62851a99-d52e-4f81-86ea-7e909d5e4b33" />
+
+## Conclusiones generales
+
+A lo largo del desarrollo de este proyecto se diseñaron, evaluaron y mejoraron tres versiones de un modelo de Machine Learning orientado a la predicción de ventas y calificaciones de videojuegos, y los resultados obtenidos demostraron que la calidad y cantidad de las variables de entrada tienen un impacto mucho mayor en el desempeño del modelo que los ajustes realizados en los hiperparámetros, la incorporación de nuevas características como el año de lanzamiento, las calificaciones de usuarios y críticos, así como la adopción de un conjunto de datos más completo, permitió mejorar significativamente la capacidad de generalización y precisión de las predicciones y fue esta tercera versión la que alcanzó los mejores resultados tanto en entrenamiento como en prueba, confirmando que el modelo es capaz de identificar patrones relevantes relacionados con el éxito comercial y la recepción crítica de los videojuegos, y aunque todavía existe margen de mejora mediante la incorporación de más datos y nuevas técnicas de modelado, el proyecto cumplió satisfactoriamente su objetivo principal y proporcionó una base sólida para futuras investigaciones y desarrollos en el área de análisis predictivo aplicado a la venta en la industria de los videojuegos.
+
+
+
+
 
 
 
